@@ -2,10 +2,60 @@
 Making an easy module to visualize a list of 2d or 3d points using tkinter.
 """
 
-import tkinter 
+import tkinter
+import numpy as np 
+from scipy.spatial.transform import Rotation
+
+
+class camera:
+    def __init__(self, position=(0,0,0), rotation=(0,0,0)):
+        self.position = position
+        self.rotation = rotation
+
+    def project_point_on_camera(self, point):
+        # Placeholder for camera projection logic
+        point = self.transform_point_position(point)
+        point = self.transform_point_rotation(point)
+        return point
+
+
+    def transform_point_position(self, point):
+        #check if point is 2d or 3d
+        if len(point) == 2:
+            x, y = point
+            z = 0
+            x = x - self.position[0]
+            y = y - self.position[1]
+            return (x, y)
+        elif len(point) == 3:
+            x, y, z = point
+            x = x - self.position[0]
+            y = y - self.position[1]
+            z = z - self.position[2]
+            return (x, y, z)
+    
+    def transform_point_rotation(self, point):
+        #check if point is 2d or 3d
+        if len(point) == 2:
+            initial = np.array(point)
+            #2d rotation matrix
+            r = Rotation.from_euler('xy', [self.rotation[0], self.rotation[1]], degrees=True)
+            rotated = r.apply(initial)
+            return (rotated[0], rotated[1])
+        elif len(point) == 3:
+            initial = np.array(point)
+            r = Rotation.from_euler('xyz', [self.rotation[0], self.rotation[1], self.rotation[2]], degrees=True)
+            rotated = r.apply(initial)
+            return (rotated[0], rotated[1], rotated[2])
+        
+
+
+        return point
+
+
 
 class twoDimensionalPointMapper:
-    def __init__(self, point_list, width=800, height=600, point_radius=3, centerx=True, centery=True):
+    def __init__(self, point_list, width=800, height=600, point_radius=3, centerx=True, centery=True, camera=None):
         self.centerx = centerx
         self.centery = centery
         self.point_list = point_list
@@ -64,10 +114,14 @@ class twoDimensionalPointMapper:
             translated_y = (self.height-1) - y
         return (translated_x, translated_y)
 
-
+"""
+by default the center of the screen is at 0,0,0, so something placed at 0z will not be visible as it is in the same plane as the camera
+adding camera position and rotation that will do matrix transformations to find projected position of point
+"""
 class threeDimensionalPointMapper(twoDimensionalPointMapper):
-    def __init__(self, point_list, width=800, height=600, point_radius=3, centerx=True, centery=True):
+    def __init__(self, point_list, width=800, height=600, point_radius=3, centerx=True, centery=True, camera=None):
         super().__init__([], width, height, point_radius, centerx, centery)
+        self.camera=camera
         self.point_list_3d = point_list
         self.projected_point_list = self.project_points(self.point_list_3d)
         self.change_points(self.projected_point_list)
@@ -76,6 +130,7 @@ class threeDimensionalPointMapper(twoDimensionalPointMapper):
     def project_points(self, point_list_3d):
         projected_points = []
         for point in point_list_3d:
+            point = self.camera.project_point_on_camera(point)
             x, y, z = point
             projected_x = x/z
             projected_y = y/z
@@ -114,8 +169,8 @@ class twoDimensionalPointAnimator(twoDimensionalPointMapper):
 
 
 class threeDimensionalPointAnimator(threeDimensionalPointMapper):
-    def __init__(self, list_of_point_lists_3d, width=800, height=600, point_radius=3, centerx=True, centery=True, frames_per_second=24):
-        super().__init__(list_of_point_lists_3d[0], width, height, point_radius, centerx, centery)
+    def __init__(self, list_of_point_lists_3d, width=800, height=600, point_radius=3, centerx=True, centery=True, frames_per_second=24, camera=None):
+        super().__init__(list_of_point_lists_3d[0], width, height, point_radius, centerx, centery, camera)
         self.fps = frames_per_second
         self.current_frame = 0
         self.total_frames = len(list_of_point_lists_3d)
