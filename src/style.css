@@ -1,0 +1,76 @@
+@import "https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css";
+
+:root{
+
+background-attachment: fixed;
+background-size: cover;
+
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Styles for the container that will be in the background */
+#svgcontainer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+#svgholder-top, #svgholder-bottom {
+  width: 100vw;
+  height: 50vh;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#svgholder-top svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Styles for the content that should appear on top */
+#contentwrapper {
+  position: relative; /* Positioned elements create a new stacking context */
+  z-index: 1; /* A higher z-index brings it to the front */
+  /* Add padding to ensure content is visible and readable */
+  padding: 20px;
+  /* Optional: give the content a background to make it opaque */
+
+}
+
+.song-slider{
+    width: 100%;
+    position: relative;
+}
+
+#seekbar{
+    -webkit-appearance: none;
+    width: 100%;
+    height: 5px;
+    border-radius: 10px;
+    background: #8197C9;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+#seekbar::-webkit-slider-thumb{
+    -webkit-appearance: none;
+    width: 1px;
+    height: 20px;
+    box-shadow: -5px 0 0 5px #F1AAA4;
+}
